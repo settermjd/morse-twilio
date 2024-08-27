@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="styles.css">
+	<title>Simple Message Sender</title>
+</head>
+
+<body class="bg-neutral-50">
+	<main class="max-w-screen md:max-w-md md:mx-auto mx-4 mt-4">
+		<h1 class="text-2xl font-bold mb-3">Simple Message Sender</h1>
+		<form action="/submit" method="post"
+			class="bg-white grid grid-cols-1 border-2 border-slate-200 rounded-md p-3 drop-shadow-sm">
+			<div class="grid grid-cols-1 mb-2">
+				<label for="message" class="font-medium">Message:</label>
+				<input type="text" id="message" name="message" required
+					class="border-2 border-slate-200 rounded-md mt-1 py-2 px-3">
+			</div>
+			<div class="grid grid-cols-1 my-2">
+				<label for="phone_number" class="font-medium">Phone Number:</label>
+				<input type="tel" id="phone_number" name="phone_number" required
+					class="border-2 border-slate-200 rounded-md mt-1 py-2 px-3">
+			</div>
+			<hr class="my-2">
+			<input type="submit" value="Send Morse Code"
+				class="bg-blue-500 text-white font-semibold align-center rounded-md py-2 mt-2 hover:cursor-pointer">
+		</form>
+	</main>
+</body>
+
+</html>
