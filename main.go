@@ -70,10 +70,6 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 	message := r.FormValue("message")
 	phoneNumber := r.FormValue("phone_number")
 	params := &twilioApi.CreateCallParams{}
@@ -115,14 +111,15 @@ func main() {
 		Password: os.Getenv("TWILIO_AUTH_TOKEN"),
 	})
 
-	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/submit", handleSubmit)
-	http.HandleFunc("/voice", handleVoiceRequest)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("POST /submit", handleSubmit)
+	mux.HandleFunc("/voice", handleVoiceRequest)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
 	fmt.Printf("Server is running on port %s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
