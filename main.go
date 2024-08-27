@@ -15,6 +15,8 @@ import (
 	"github.com/twilio/twilio-go/twiml"
 )
 
+const baseUrl = "https://aee2-87-121-75-154.ngrok-free.app"
+
 var client *twilio.RestClient
 
 var MorseCode = map[rune]string{
@@ -74,12 +76,11 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	message := r.FormValue("message")
 	phoneNumber := r.FormValue("phone_number")
-	encodedMessage := url.QueryEscape(message)
-	baseUrl := "https://aee2-87-121-75-154.ngrok-free.app"
 	params := &twilioApi.CreateCallParams{}
 	params.SetTo(phoneNumber)
 	params.SetFrom(os.Getenv("TWILIO_PHONE_NUMBER"))
-	params.SetUrl(baseUrl + "/voice?message=" + encodedMessage)
+	params.SetUrl(baseUrl + "/voice?message=" + url.QueryEscape(message))
+
 	_, err := client.Api.CreateCall(params)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
