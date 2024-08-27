@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/xml"
 	"fmt"
 	"html/template"
 	"log"
@@ -13,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
+	"github.com/twilio/twilio-go/twiml"
 )
 
 var client *twilio.RestClient
@@ -30,15 +30,6 @@ var MorseCode = map[rune]string{
 	'8': "---..", '9': "----.",
 }
 
-type TwiML struct {
-	XMLName xml.Name `xml:"Response"`
-	Play    []Play   `xml:"Play"`
-}
-
-type Play struct {
-	Digits string `xml:"Digits,attr"`
-}
-
 func textToMorse(text string) string {
 	var result strings.Builder
 	for _, char := range strings.ToUpper(text) {
@@ -52,19 +43,19 @@ func textToMorse(text string) string {
 	return result.String()
 }
 
-func morseToTwiML(morse string) TwiML {
-	var response TwiML
+func morseToTwiML(morse string) []twiml.Element {
+	var verbList []twiml.Element
 	for _, char := range morse {
 		switch char {
 		case '.':
-			response.Play = append(response.Play, Play{Digits: "1"})
+			verbList = append(verbList, &twiml.VoicePlay{Digits: "1"})
 		case '-':
-			response.Play = append(response.Play, Play{Digits: "9"})
+			verbList = append(verbList, &twiml.VoicePlay{Digits: "9"})
 		case ' ':
-			response.Play = append(response.Play, Play{Digits: "w"})
+			verbList = append(verbList, &twiml.VoicePlay{Digits: "w"})
 		}
 	}
-	return response
+	return verbList
 }
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -102,10 +93,14 @@ func handleVoiceRequest(w http.ResponseWriter, r *http.Request) {
 	if message == "" {
 		message = "Hello World"
 	}
-	morse := textToMorse(message)
-	twiml := morseToTwiML(morse)
 	w.Header().Set("Content-Type", "application/xml")
-	xml.NewEncoder(w).Encode(twiml)
+
+	output, err := twiml.Voice(morseToTwiML(textToMorse(message)))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	w.Write([]byte(output))
 }
 
 func main() {
